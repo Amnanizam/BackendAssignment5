@@ -1,17 +1,32 @@
-import mongoose from "mongoose";
-import {ProductTypes} from '../types/product-types';
+import mongoose, { Schema, model, Document } from "mongoose";
 
-const productSchema=new mongoose.Schema<ProductTypes>(
-    {
-       title:{type:String,required:true,trim:true},
-       description:{type:String,required:true},
-       price:{type:Number,required:true,min: [0, "Quantity cannot be negative"] },
-       quantity:{type:Number,required:true,min: [0, "Quantity cannot be negative"] },
-       category:{type:[String],default:[]}
+export interface IProduct extends Document {
+  name: string;
+  price: number;
+  category: "clothes" | "shoes" | "mobile" | "abaya";
+  inStock: boolean;
+  tags: string[];
+  description?: string;
+  stockQuantity?: number;
+  brand?: string;
+  rating?: number;
+}
 
-    },{
-        timestamps:true
-    }
-    
-)
-export default mongoose.model<ProductTypes>("Product",productSchema);
+const productSchema = new Schema<IProduct>(
+  {
+    name: { type: String, required: true, minlength: 3 },
+    price: { type: Number, required: true, min: 0 },
+    category: { type: String, required: true, enum: ["clothes", "shoes", "mobile", "abaya"] },
+    inStock: { type: Boolean, required: true },
+    tags: { type: [String], required: true },
+    description: { type: String },
+    stockQuantity: { type: Number, min: 0 },
+    brand: { type: String },
+    rating: { type: Number, min: 0, max: 5 },
+  },
+  { timestamps: true }
+);
+
+const ProductModel = model<IProduct>("Product", productSchema);
+
+export default ProductModel;
